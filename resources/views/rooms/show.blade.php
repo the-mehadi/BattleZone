@@ -74,9 +74,15 @@
                     @endguest
 
                     @auth
-                        <a href="{{ route('rooms.join', $room) }}" class="rounded-2xl bg-orange-500 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-400">
-                            Join This Room
-                        </a>
+                        @if ($hasJoined)
+                            <button type="button" disabled class="cursor-not-allowed rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-bold text-slate-950 opacity-90">
+                                Already Joined
+                            </button>
+                        @else
+                            <a href="{{ route('rooms.join', $room) }}" class="rounded-2xl bg-orange-500 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-400">
+                                Join This Room
+                            </a>
+                        @endif
                     @endauth
 
                     <a href="{{ route('rooms.index') }}" class="rounded-2xl border border-slate-700 px-6 py-3 text-sm font-bold text-slate-200 transition hover:bg-slate-800 hover:text-white">

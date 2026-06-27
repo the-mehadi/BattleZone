@@ -41,6 +41,13 @@ class RoomController extends Controller
                 ->latest(),
         ])->loadCount('squads');
 
-        return view('rooms.show', compact('room'));
+        $hasJoined = auth()->check()
+            ? $room->squads()->where('leader_user_id', auth()->id())->exists()
+            : false;
+
+        return view('rooms.show', [
+            'room' => $room,
+            'hasJoined' => $hasJoined,
+        ]);
     }
 }
