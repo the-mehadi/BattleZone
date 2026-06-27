@@ -49,8 +49,6 @@ class SquadController extends Controller
 
     public function store(SquadStoreRequest $request, Room $room): RedirectResponse
     {
-        $room->load('category');
-
         if ($response = $this->ensurePlayerCanJoin($room)) {
             return $response;
         }
@@ -59,15 +57,6 @@ class SquadController extends Controller
             DB::transaction(function () use ($request, $room): void {
                 /** @var \App\Models\User $user */
                 $user = $request->user();
-                // #region debug-point A:join-transaction-start
-                $this->reportDebug('A', 'SquadController@store:start', '[DEBUG] Join transaction started', [
-                    'room_id' => $room->id,
-                    'entry_fee' => (float) $room->entry_fee,
-                    'user_id' => $user?->id,
-                    'wallet_balance' => (float) $user?->wallet_balance,
-                    'players_count' => count($request->validated('players')),
-                ]);
-                // #endregion
 
                 $squad = Squad::create([
                     'room_id' => $room->id,
@@ -76,13 +65,6 @@ class SquadController extends Controller
                     'total_paid' => $room->entry_fee,
                     'status' => 'pending',
                 ]);
-                // #region debug-point B:squad-created
-                $this->reportDebug('B', 'SquadController@store:squad-created', '[DEBUG] Squad row created', [
-                    'room_id' => $room->id,
-                    'squad_id' => $squad->id,
-                    'user_id' => $user?->id,
-                ]);
-                // #endregion
 
                 $squad->squadPlayers()->createMany(
                     collect($request->validated('players'))
@@ -92,12 +74,6 @@ class SquadController extends Controller
                         ])
                         ->all()
                 );
-                // #region debug-point C:players-created
-                $this->reportDebug('C', 'SquadController@store:players-created', '[DEBUG] Squad players inserted', [
-                    'squad_id' => $squad->id,
-                    'inserted_players' => $squad->squadPlayers()->count(),
-                ]);
-                // #endregion
 
                 $deducted = $this->walletService->deduct(
                     $user,
@@ -105,14 +81,6 @@ class SquadController extends Controller
                     sprintf('Room entry fee for %s', $room->title),
                     $room->id
                 );
-                // #region debug-point D:wallet-deduct-result
-                $this->reportDebug('D', 'SquadController@store:wallet-deduct-result', '[DEBUG] Wallet deduction completed', [
-                    'room_id' => $room->id,
-                    'user_id' => $user?->id,
-                    'deducted' => $deducted,
-                    'wallet_balance_after_local' => (float) $user?->wallet_balance,
-                ]);
-                // #endregion
 
                 if (! $deducted) {
                     throw new InsufficientWalletBalanceException();
@@ -123,15 +91,6 @@ class SquadController extends Controller
                 ->route('rooms.show', $room)
                 ->with('error', 'Your wallet balance is no longer enough to join this room.');
         } catch (Throwable $exception) {
-            // #region debug-point E:join-exception
-            $this->reportDebug('E', 'SquadController@store:catch', '[DEBUG] Join transaction threw exception', [
-                'room_id' => $room->id,
-                'exception_class' => $exception::class,
-                'exception_message' => $exception->getMessage(),
-                'exception_file' => $exception->getFile(),
-                'exception_line' => $exception->getLine(),
-            ]);
-            // #endregion
             report($exception);
 
             return redirect()
@@ -177,44 +136,5 @@ class SquadController extends Controller
             'duo' => 2,
             default => 4,
         };
-    }
-
-    protected function reportDebug(string $hypothesisId, string $location, string $message, array $data = []): void
-    {
-        $url = 'http://127.0.0.1:7777/event';
-        $sessionId = 'join-payment-failure';
-        $envPath = base_path('.dbg/join-payment-failure.env');
-
-        if (is_file($envPath)) {
-            $envContents = file_get_contents($envPath) ?: '';
-            preg_match('/^DEBUG_SERVER_URL=(.+)$/m', $envContents, $urlMatches);
-            preg_match('/^DEBUG_SESSION_ID=(.+)$/m', $envContents, $sessionMatches);
-            $url = $urlMatches[1] ?? $url;
-            $sessionId = $sessionMatches[1] ?? $sessionId;
-        }
-
-        $payload = json_encode([
-            'sessionId' => $sessionId,
-            'runId' => 'pre-fix',
-            'hypothesisId' => $hypothesisId,
-            'location' => $location,
-            'msg' => $message,
-            'data' => $data,
-            'ts' => (int) round(microtime(true) * 1000),
-        ]);
-
-        if ($payload === false) {
-            return;
-        }
-
-        @file_get_contents($url, false, stream_context_create([
-            'http' => [
-                'method' => 'POST',
-                'header' => "Content-Type: application/json\r\n",
-                'content' => $payload,
-                'ignore_errors' => true,
-                'timeout' => 1,
-            ],
-        ]));
     }
 }

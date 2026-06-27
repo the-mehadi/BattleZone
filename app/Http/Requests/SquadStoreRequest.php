@@ -48,7 +48,7 @@ class SquadStoreRequest extends FormRequest
         return [
             'players' => ['required', 'array', 'size:'.$requiredPlayers],
             'players.*.ingame_name' => ['required', 'string', 'max:50'],
-            'players.*.ingame_id' => ['required', 'string', 'max:20'],
+            'players.*.ingame_id' => ['required', 'string', 'max:20', 'distinct'],
         ];
     }
 
@@ -63,6 +63,7 @@ class SquadStoreRequest extends FormRequest
 
         return [
             'players.size' => "Exactly {$requiredPlayers} player entries are required for this room.",
+            'players.*.ingame_id.distinct' => 'Each player must have a unique in-game ID.',
         ];
     }
 
