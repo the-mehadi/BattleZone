@@ -21,7 +21,7 @@
                     <div class="mt-8 rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-5">
                         <h3 class="text-lg font-semibold text-emerald-200">Results Already Entered</h3>
                         <p class="mt-2 text-sm text-emerald-100">
-                            Prize distribution has already been completed for this room. Results cannot be submitted a second time.
+                            Prize distribution has already been completed for this room. You can still correct mistakes below and wallet adjustments will be applied automatically.
                         </p>
 
                         <div class="mt-5 overflow-hidden rounded-2xl border border-slate-800">
@@ -49,14 +49,19 @@
                             </table>
                         </div>
                     </div>
-                @elseif ($approvedSquads->isEmpty())
+                @endif
+
+                @if ($approvedSquads->isEmpty())
                     <div class="mt-8 rounded-3xl border border-slate-800 bg-slate-950/60 px-6 py-10 text-center">
                         <p class="text-lg font-semibold text-white">No approved squads available.</p>
                         <p class="mt-2 text-sm text-slate-400">Approve squads for this room before entering results.</p>
                     </div>
                 @else
-                    <form method="POST" action="{{ route('admin.results.store', $room) }}" class="mt-8">
+                    <form method="POST" action="{{ $hasResults ? route('admin.results.update', $room) : route('admin.results.store', $room) }}" class="mt-8">
                         @csrf
+                        @if ($hasResults)
+                            @method('PUT')
+                        @endif
 
                         @if ($errors->has('results'))
                             <div class="mb-5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
@@ -95,7 +100,7 @@
                                                     type="number"
                                                     name="results[{{ $index }}][position]"
                                                     min="1"
-                                                    value="{{ old("results.$index.position") }}"
+                                                    value="{{ old("results.$index.position", $existingResults->get($squad->id)?->position) }}"
                                                     class="block w-28 rounded-xl border-slate-700 bg-slate-950 text-slate-100 focus:border-orange-500 focus:ring-orange-500"
                                                     required
                                                 >
@@ -108,7 +113,7 @@
                                                     type="number"
                                                     name="results[{{ $index }}][total_kills]"
                                                     min="0"
-                                                    value="{{ old("results.$index.total_kills", 0) }}"
+                                                    value="{{ old("results.$index.total_kills", $existingResults->get($squad->id)?->total_kills ?? 0) }}"
                                                     class="block w-28 rounded-xl border-slate-700 bg-slate-950 text-slate-100 focus:border-orange-500 focus:ring-orange-500"
                                                     required
                                                 >
@@ -124,7 +129,7 @@
 
                         <div class="mt-6 flex justify-end">
                             <button type="submit" class="rounded-2xl bg-orange-500 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-orange-400">
-                                Save Results &amp; Distribute Prizes
+                                {{ $hasResults ? 'Update Results & Adjust Prizes' : 'Save Results & Distribute Prizes' }}
                             </button>
                         </div>
                     </form>

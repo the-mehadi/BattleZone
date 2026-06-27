@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ResultStoreRequest;
 use App\Models\Result;
 use App\Models\Room;
+use App\Models\Squad;
 use App\Services\WalletService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -42,6 +43,7 @@ class ResultController extends Controller
             'room' => $room,
             'approvedSquads' => $room->squads,
             'hasResults' => $room->results->isNotEmpty(),
+            'existingResults' => $room->results->keyBy('squad_id'),
         ]);
     }
 
@@ -137,5 +139,130 @@ class ResultController extends Controller
         return redirect()
             ->route('admin.results.index', $room)
             ->with('success', 'Results saved successfully. '.implode(' | ', $summary));
+    }
+
+    public function update(ResultStoreRequest $request, Room $room): RedirectResponse
+    {
+        $room->loadMissing([
+            'category',
+            'roomPrizes',
+            'results.squad.leader',
+        ]);
+
+        if (! $room->results()->exists()) {
+            return redirect()
+                ->route('admin.results.index', $room)
+                ->with('error', 'No saved results were found for this room. Please create results first.');
+        }
+
+        $summary = [];
+
+        try {
+            DB::transaction(function () use ($request, $room, &$summary): void {
+                $room = Room::query()
+                    ->lockForUpdate()
+                    ->with([
+                        'category',
+                        'roomPrizes',
+                        'results.squad.leader',
+                    ])
+                    ->findOrFail($room->id);
+
+                $prizesByPosition = $room->roomPrizes->keyBy('position');
+                $existingResults = $room->results->keyBy('squad_id');
+
+                foreach ($request->validated('results') as $entry) {
+                    $squad = $room->squads()
+                        ->where('status', 'approved')
+                        ->with('leader')
+                        ->findOrFail($entry['squad_id']);
+
+                    $existingResult = $existingResults->get($squad->id);
+
+                    if (! $existingResult) {
+                        throw new RuntimeException('A submitted squad does not have an existing result entry to update.');
+                    }
+
+                    $calculated = $this->calculateResultValues($room, $entry['position'], $entry['total_kills'], $prizesByPosition);
+                    $previousPrize = round((float) $existingResult->prize_won, 2);
+                    $prizeDelta = round($calculated['prize_won'] - $previousPrize, 2);
+
+                    if ($prizeDelta > 0) {
+                        $this->walletService->credit(
+                            $squad->leader,
+                            $prizeDelta,
+                            sprintf('Result adjustment credit - %s - Squad %s', $room->title, $squad->effective_name),
+                            $room->id
+                        );
+
+                        $summary[] = sprintf(
+                            '%s received an extra %.2f BDT after result correction',
+                            $squad->leader->name,
+                            $prizeDelta
+                        );
+                    } elseif ($prizeDelta < 0) {
+                        $deducted = $this->walletService->deduct(
+                            $squad->leader,
+                            abs($prizeDelta),
+                            sprintf('Result adjustment debit - %s - Squad %s', $room->title, $squad->effective_name),
+                            $room->id
+                        );
+
+                        if (! $deducted) {
+                            throw new RuntimeException(sprintf(
+                                'Cannot reduce the prize for %s because the wallet does not have enough balance for the adjustment.',
+                                $squad->leader->name
+                            ));
+                        }
+
+                        $summary[] = sprintf(
+                            '%.2f BDT was adjusted back from %s after result correction',
+                            abs($prizeDelta),
+                            $squad->leader->name
+                        );
+                    }
+
+                    $existingResult->update([
+                        'position' => $calculated['position'],
+                        'total_kills' => $calculated['total_kills'],
+                        'kill_point' => $calculated['kill_point'],
+                        'rank_point' => $calculated['rank_point'],
+                        'total_point' => $calculated['total_point'],
+                        'prize_won' => $calculated['prize_won'],
+                    ]);
+                }
+            });
+        } catch (RuntimeException $exception) {
+            return redirect()
+                ->route('admin.results.index', $room)
+                ->withInput()
+                ->with('error', $exception->getMessage());
+        }
+
+        if ($summary === []) {
+            $summary[] = 'No prize adjustments were needed for the corrected standings.';
+        }
+
+        return redirect()
+            ->route('admin.results.index', $room)
+            ->with('success', 'Results updated successfully. '.implode(' | ', $summary));
+    }
+
+    protected function calculateResultValues(Room $room, int $position, int $totalKills, $prizesByPosition): array
+    {
+        $prize = $prizesByPosition->get($position);
+        $rankPoint = round((float) ($prize?->prize_amount ?? 0), 2);
+        $killPoint = round($totalKills * (float) $room->category->kill_point, 2);
+        $totalPoint = round($killPoint + $rankPoint, 2);
+        $prizeWon = round((float) ($prize?->prize_amount ?? 0), 2);
+
+        return [
+            'position' => $position,
+            'total_kills' => $totalKills,
+            'kill_point' => $killPoint,
+            'rank_point' => $rankPoint,
+            'total_point' => $totalPoint,
+            'prize_won' => $prizeWon,
+        ];
     }
 }

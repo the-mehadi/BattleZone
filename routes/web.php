@@ -55,6 +55,7 @@ Route::prefix('admin')
             ->name('rooms.squads.update-status');
         Route::get('rooms/{room}/results', [ResultController::class, 'index'])->name('results.index');
         Route::post('rooms/{room}/results', [ResultController::class, 'store'])->name('results.store');
+        Route::put('rooms/{room}/results', [ResultController::class, 'update'])->name('results.update');
         Route::resource('rooms', RoomController::class);
         Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
         Route::post('payments/{payment}/approve', [PaymentController::class, 'approve'])->name('payments.approve');
