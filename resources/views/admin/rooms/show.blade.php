@@ -16,6 +16,12 @@
                             Edit Room
                         </a>
 
+                        @if ($room->status === 'finished' || $room->results->isNotEmpty())
+                            <a href="{{ route('admin.results.index', $room) }}" class="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-orange-400">
+                                {{ $room->results->isNotEmpty() ? 'View Results' : 'Enter Results' }}
+                            </a>
+                        @endif
+
                         @if ($room->status === 'upcoming')
                             <form method="POST" action="{{ route('admin.rooms.destroy', $room) }}" onsubmit="return confirm('Delete this room?');">
                                 @csrf
@@ -147,6 +153,12 @@
                             <p class="mt-2 text-2xl font-semibold text-white">{{ $room->results->count() }}</p>
                         </div>
                     </div>
+
+                    @if ($room->status === 'finished' || $room->results->isNotEmpty())
+                        <a href="{{ route('admin.results.index', $room) }}" class="mt-4 inline-flex w-full items-center justify-center rounded-2xl border border-orange-500/30 bg-orange-500/10 px-4 py-3 text-sm font-semibold text-orange-300 transition hover:bg-orange-500/20">
+                            {{ $room->results->isNotEmpty() ? 'Open Result Summary' : 'Open Result Entry' }}
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeaderboardController;
@@ -49,6 +50,8 @@ Route::prefix('admin')
             ->name('rooms.update-status');
         Route::patch('rooms/{room}/squads/{squad}/status', [RoomController::class, 'updateSquadStatus'])
             ->name('rooms.squads.update-status');
+        Route::get('rooms/{room}/results', [ResultController::class, 'index'])->name('results.index');
+        Route::post('rooms/{room}/results', [ResultController::class, 'store'])->name('results.store');
         Route::resource('rooms', RoomController::class);
         Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
         Route::post('payments/{payment}/approve', [PaymentController::class, 'approve'])->name('payments.approve');
