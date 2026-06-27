@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeaderboardController;
+use App\Http\Controllers\Player\SquadController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoomController as PublicRoomController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,12 @@ Route::middleware(['auth', 'not.banned'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth', 'not.banned', 'player'])->group(function () {
+    Route::get('/rooms/{room}/join', [SquadController::class, 'showJoinForm'])->name('rooms.join');
+    Route::post('/rooms/{room}/join', [SquadController::class, 'store'])->name('rooms.join.store');
+    Route::get('/my-squads', [SquadController::class, 'index'])->name('my-squads.index');
 });
 
 Route::prefix('admin')

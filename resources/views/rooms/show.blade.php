@@ -1,5 +1,5 @@
 <x-player-layout title="{{ $room->title }}">
-    <section class="mx-auto max-w-7xl px-6 py-14" x-data="{ showJoinModal: false }">
+    <section class="mx-auto max-w-7xl px-6 py-14">
         <div class="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
             <div class="rounded-[2rem] border border-slate-800 bg-slate-900/80 p-8 shadow-2xl shadow-slate-950/30">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -74,9 +74,9 @@
                     @endguest
 
                     @auth
-                        <button type="button" @click="showJoinModal = true" class="rounded-2xl bg-orange-500 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-400">
+                        <a href="{{ route('rooms.join', $room) }}" class="rounded-2xl bg-orange-500 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-400">
                             Join This Room
-                        </button>
+                        </a>
                     @endauth
 
                     <a href="{{ route('rooms.index') }}" class="rounded-2xl border border-slate-700 px-6 py-3 text-sm font-bold text-slate-200 transition hover:bg-slate-800 hover:text-white">
@@ -126,45 +126,5 @@
             </div>
         </div>
 
-        @auth
-            <div
-                x-show="showJoinModal"
-                x-transition.opacity
-                class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 px-4 py-6"
-                style="display: none;"
-            >
-                <div @click.outside="showJoinModal = false" class="w-full max-w-lg rounded-[2rem] border border-slate-800 bg-slate-900 p-6 shadow-2xl shadow-slate-950/40">
-                    <div class="flex items-start justify-between gap-4">
-                        <div>
-                            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-orange-400">Join Room</p>
-                            <h3 class="mt-2 text-2xl font-bold text-white">{{ $room->title }}</h3>
-                        </div>
-
-                        <button type="button" @click="showJoinModal = false" class="rounded-xl border border-slate-700 px-3 py-2 text-sm font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white">
-                            Close
-                        </button>
-                    </div>
-
-                    <div class="mt-6 space-y-4 rounded-2xl border border-slate-800 bg-slate-950/70 p-5 text-sm text-slate-300">
-                        <p>
-                            You are logged in as <span class="font-bold text-white">{{ auth()->user()->name }}</span>.
-                        </p>
-                        <p>
-                            Match starts at <span class="font-bold text-white">{{ $room->match_time->format('d M Y, h:i A') }}</span> with an entry fee of
-                            <span class="font-bold text-white">৳ {{ number_format((float) $room->entry_fee, 2) }}</span>.
-                        </p>
-                        <p>
-                            Squad joining flow can be connected here to create or attach your squad to this room.
-                        </p>
-                    </div>
-
-                    <div class="mt-6 flex justify-end">
-                        <button type="button" @click="showJoinModal = false" class="rounded-2xl bg-orange-500 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-400">
-                            Got It
-                        </button>
-                    </div>
-                </div>
-            </div>
-        @endauth
     </section>
 </x-player-layout>

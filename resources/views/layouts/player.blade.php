@@ -35,6 +35,9 @@
                         </a>
 
                         @auth
+                            <a href="{{ route('my-squads.index') }}" class="{{ request()->routeIs('my-squads.*') ? 'bg-orange-500/15 text-orange-300 ring-1 ring-orange-500/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }} rounded-xl px-4 py-2 text-sm font-semibold transition">
+                                My Squads
+                            </a>
                             <a href="#" class="rounded-xl px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-slate-800/80 hover:text-white">
                                 Wallet
                             </a>
@@ -62,6 +65,22 @@
             </header>
 
             <main>
+                @if (session('success') || session('error'))
+                    <div class="mx-auto max-w-7xl px-6 pt-6">
+                        @if (session('success'))
+                            <div class="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-200">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm font-semibold text-rose-200">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
                 {{ $slot }}
             </main>
         </div>
