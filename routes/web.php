@@ -2,12 +2,16 @@
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\RoomController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RoomController as PublicRoomController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/rooms', [PublicRoomController::class, 'index'])->name('rooms.index');
+Route::get('/rooms/{room}', [PublicRoomController::class, 'show'])->name('rooms.show');
+Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
