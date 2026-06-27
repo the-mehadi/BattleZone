@@ -42,7 +42,7 @@ class SquadController extends Controller
 
         return view('player.squads.join', [
             'room' => $room,
-            'playerSlots' => $room->category->max_players,
+            'playerSlots' => $this->resolvePlayerSlots($room),
         ]);
     }
 
@@ -122,5 +122,14 @@ class SquadController extends Controller
         }
 
         return null;
+    }
+
+    protected function resolvePlayerSlots(Room $room): int
+    {
+        return match ($room->category->squad_type) {
+            'solo' => 1,
+            'duo' => 2,
+            default => 4,
+        };
     }
 }

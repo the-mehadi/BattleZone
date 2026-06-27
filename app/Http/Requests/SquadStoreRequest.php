@@ -43,7 +43,7 @@ class SquadStoreRequest extends FormRequest
     public function rules(): array
     {
         $room = $this->room();
-        $requiredPlayers = $room->category->max_players;
+        $requiredPlayers = $this->resolveRequiredPlayers($room);
 
         return [
             'players' => ['required', 'array', 'size:'.$requiredPlayers],
@@ -59,7 +59,7 @@ class SquadStoreRequest extends FormRequest
      */
     public function messages(): array
     {
-        $requiredPlayers = $this->room()->category->max_players;
+        $requiredPlayers = $this->resolveRequiredPlayers($this->room());
 
         return [
             'players.size' => "Exactly {$requiredPlayers} player entries are required for this room.",
@@ -72,5 +72,14 @@ class SquadStoreRequest extends FormRequest
         $room = $this->route('room');
 
         return $room->loadMissing('category');
+    }
+
+    protected function resolveRequiredPlayers(Room $room): int
+    {
+        return match ($room->category->squad_type) {
+            'solo' => 1,
+            'duo' => 2,
+            default => 4,
+        };
     }
 }
