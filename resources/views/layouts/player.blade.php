@@ -41,7 +41,7 @@
                             <a href="{{ route('wallet.index') }}" class="{{ request()->routeIs('wallet.*') ? 'bg-orange-500/15 text-orange-300 ring-1 ring-orange-500/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }} rounded-xl px-4 py-2 text-sm font-semibold transition">
                                 Wallet
                             </a>
-                            <a href="{{ route('profile.edit') }}" class="rounded-xl px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-slate-800/80 hover:text-white">
+                            <a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.*') ? 'bg-orange-500/15 text-orange-300 ring-1 ring-orange-500/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }} rounded-xl px-4 py-2 text-sm font-semibold transition">
                                 Profile
                             </a>
                             <form method="POST" action="{{ route('logout') }}">
