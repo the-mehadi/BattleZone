@@ -113,7 +113,7 @@ class RoomController extends Controller
         $categories = Category::query()
             ->where(function ($query) use ($room): void {
                 $query->where('status', 'active')
-                    ->orWhereKey($room->category_id);
+                    ->orWhere('id', $room->category_id);
             })
             ->with(['categoryPrizes' => fn ($query) => $query->orderBy('position')])
             ->orderBy('name')
