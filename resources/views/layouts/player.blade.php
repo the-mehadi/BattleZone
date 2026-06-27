@@ -14,11 +14,24 @@
     </head>
     <body class="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
         <div class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(249,115,22,0.18),_transparent_35%),linear-gradient(180deg,_#020617_0%,_#0f172a_45%,_#020617_100%)]">
-            
-        <x-bottom-navbar />
+            <div class="fixed inset-x-0 top-0 z-40 border-b border-zinc-800/80 bg-zinc-950/95 backdrop-blur lg:hidden">
+                <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
+                    <a href="{{ route('home') }}" class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 text-base font-black text-white shadow-lg shadow-orange-500/20">
+                            B
+                        </div>
+                        <div>
+                            <p class="text-base font-semibold text-white">BattleZone</p>
+                            <p class="text-[10px] uppercase tracking-[0.22em] text-orange-400">Free Fire Arena</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <x-bottom-navbar />
 
 
-            <main class="pb-24 pt-6 lg:pb-8 lg:pt-24">
+            <main class="pb-24 pt-24 lg:pb-8 lg:pt-24">
                 @if (session('success') || session('error'))
                     <div class="mx-auto max-w-7xl px-6 pt-6">
                         @if (session('success'))
