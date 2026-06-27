@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         User::updateOrCreate([
             'phone' => '01700000000',
         ], [
-            'name' => 'BlazeDrop Admin',
+            'name' => 'BattleZone Admin',
             'email' => 'admin@battlezone.local',
             'password' => Hash::make('admin1234'),
             'role' => 'moderator',
@@ -34,5 +34,11 @@ class DatabaseSeeder extends Seeder
                 ['value' => '']
             );
         }
+
+        $this->call([
+            CategorySeeder::class,
+            UserSeeder::class,
+            RoomSeeder::class,
+        ]);
     }
 }
