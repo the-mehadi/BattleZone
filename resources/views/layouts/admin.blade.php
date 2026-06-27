@@ -41,10 +41,10 @@
                         <a href="{{ route('admin.payments.index') }}" class="{{ request()->routeIs('admin.payments.*') ? 'bg-orange-500/20 text-orange-300 ring-1 ring-orange-500/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white' }} block rounded-xl px-4 py-3 text-sm font-medium transition">
                             Payments
                         </a>
-                        <a href="#" class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-500 transition hover:bg-slate-800/40 hover:text-slate-300">
+                        <a href="{{ route('admin.players.index') }}" class="{{ request()->routeIs('admin.players.*') ? 'bg-orange-500/20 text-orange-300 ring-1 ring-orange-500/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white' }} block rounded-xl px-4 py-3 text-sm font-medium transition">
                             Players
                         </a>
-                        <a href="#" class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-500 transition hover:bg-slate-800/40 hover:text-slate-300">
+                        <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'bg-orange-500/20 text-orange-300 ring-1 ring-orange-500/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white' }} block rounded-xl px-4 py-3 text-sm font-medium transition">
                             Settings
                         </a>
                     </nav>

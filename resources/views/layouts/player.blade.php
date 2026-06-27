@@ -21,7 +21,7 @@
                             B
                         </div>
                         <div>
-                            <p class="text-lg font-semibold text-white">BlazeDrop</p>
+                            <p class="text-lg font-semibold text-white">BattleZone</p>
                             <p class="text-xs uppercase tracking-[0.24em] text-orange-400">Free Fire Arena</p>
                         </div>
                     </a>

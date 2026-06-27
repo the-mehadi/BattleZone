@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\PlayerController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\RoomController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\Player\SquadController;
@@ -40,7 +43,7 @@ Route::prefix('admin')
     ->as('admin.')
     ->middleware(['auth', 'not.banned', 'moderator'])
     ->group(function () {
-        Route::redirect('/', '/admin/categories')->name('dashboard');
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::patch('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])
             ->name('categories.toggle-status');
         Route::resource('categories', CategoryController::class);
@@ -56,6 +59,10 @@ Route::prefix('admin')
         Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
         Route::post('payments/{payment}/approve', [PaymentController::class, 'approve'])->name('payments.approve');
         Route::post('payments/{payment}/reject', [PaymentController::class, 'reject'])->name('payments.reject');
+        Route::get('players', [PlayerController::class, 'index'])->name('players.index');
+        Route::post('players/{user}/ban', [PlayerController::class, 'ban'])->name('players.ban');
+        Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
     });
 
 require __DIR__.'/auth.php';
