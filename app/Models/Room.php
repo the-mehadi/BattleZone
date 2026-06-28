@@ -25,6 +25,7 @@ class Room extends Model
         'total_prize',
         'kill_prize_enabled',
         'kill_prize_per_kill',
+        'max_squads',
         'is_room_locked',
         'status',
         'created_by',
@@ -38,6 +39,7 @@ class Room extends Model
             'total_prize' => 'decimal:2',
             'kill_prize_enabled' => 'boolean',
             'kill_prize_per_kill' => 'decimal:2',
+            'max_squads' => 'integer',
             'is_room_locked' => 'boolean',
         ];
     }
@@ -88,5 +90,46 @@ class Room extends Model
         return Attribute::get(
             fn (): string => "{$this->title} - {$this->map}"
         );
+    }
+
+    #[Computed]
+    protected function joinedSquadsCount(): Attribute
+    {
+        return Attribute::get(function (): int {
+            if ($this->relationLoaded('squads')) {
+                return $this->squads
+                    ->whereIn('status', ['pending', 'approved'])
+                    ->count();
+            }
+
+            return $this->squads()
+                ->whereIn('status', ['pending', 'approved'])
+                ->count();
+        });
+    }
+
+    #[Computed]
+    protected function availableSlots(): Attribute
+    {
+        return Attribute::get(
+            fn (): int => max(0, (int) $this->max_squads - (int) $this->joined_squads_count)
+        );
+    }
+
+    #[Computed]
+    protected function slotProgressPercentage(): Attribute
+    {
+        return Attribute::get(function (): float {
+            if ((int) $this->max_squads <= 0) {
+                return 0;
+            }
+
+            return min(100, round(((int) $this->joined_squads_count / (int) $this->max_squads) * 100, 2));
+        });
+    }
+
+    public function isFull(): bool
+    {
+        return (int) $this->joined_squads_count >= (int) $this->max_squads;
     }
 }

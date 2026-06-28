@@ -21,6 +21,34 @@
                     <p class="mt-3 text-3xl font-black tracking-[0.18em] text-white sm:text-4xl" x-text="display"></p>
                 </div>
 
+                <div class="mt-8 rounded-[1.5rem] border border-slate-800 bg-slate-950/70 p-6">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Room Slots</p>
+                            <h2 class="mt-2 text-2xl font-bold text-white">Team Capacity</h2>
+                        </div>
+
+                        <div class="grid gap-3 sm:grid-cols-3">
+                            <div class="rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3">
+                                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Total Teams</p>
+                                <p class="mt-2 text-lg font-bold text-white">{{ $room->max_squads }}</p>
+                            </div>
+                            <div class="rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3">
+                                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Joined</p>
+                                <p class="mt-2 text-lg font-bold text-white">{{ $room->joined_squads_count }}</p>
+                            </div>
+                            <div class="rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3">
+                                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Remaining</p>
+                                <p class="mt-2 text-lg font-bold text-white">{{ $room->available_slots }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <x-slot-progress :room="$room" />
+                    </div>
+                </div>
+
                 <div class="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <div class="rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
                         <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Map</p>
@@ -97,6 +125,12 @@
                 </div>
 
                 <div class="mt-8 flex flex-wrap gap-4">
+                    @if ($room->isFull())
+                        <div class="w-full rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm font-semibold text-red-200">
+                            This room is full. No more slots are available.
+                        </div>
+                    @endif
+
                     @guest
                         <a href="{{ route('login') }}" class="rounded-2xl bg-orange-500 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-400">
                             Login To Join
@@ -107,6 +141,10 @@
                         @if ($hasJoined)
                             <button type="button" disabled class="cursor-not-allowed rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-bold text-slate-950 opacity-90">
                                 Already Joined
+                            </button>
+                        @elseif ($room->isFull())
+                            <button type="button" disabled class="cursor-not-allowed rounded-2xl bg-red-500 px-6 py-3 text-sm font-bold text-slate-950 opacity-90">
+                                Room Full
                             </button>
                         @else
                             <a href="{{ route('rooms.join', $room) }}" class="rounded-2xl bg-orange-500 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-400">

@@ -67,6 +67,12 @@ class RoomController extends Controller
                 ->with(['categoryPrizes' => fn ($query) => $query->orderBy('position')])
                 ->findOrFail($request->integer('category_id'));
 
+            $maxSquads = match ($category->squad_type) {
+                'solo' => 52,
+                'duo' => 26,
+                default => 13,
+            };
+
             $room = Room::create([
                 'category_id' => $category->id,
                 'title' => $request->string('title')->toString(),
@@ -78,6 +84,7 @@ class RoomController extends Controller
                 'total_prize' => $request->input('total_prize'),
                 'kill_prize_enabled' => $request->boolean('kill_prize_enabled'),
                 'kill_prize_per_kill' => $request->boolean('kill_prize_enabled') ? $request->input('kill_prize_per_kill') : 0,
+                'max_squads' => $maxSquads,
                 'is_room_locked' => true,
                 'status' => 'upcoming',
                 'created_by' => $request->user()->id,
@@ -133,6 +140,13 @@ class RoomController extends Controller
     public function update(RoomRequest $request, Room $room): RedirectResponse
     {
         DB::transaction(function () use ($request, $room): void {
+            $category = Category::query()->findOrFail($request->integer('category_id'));
+            $maxSquads = match ($category->squad_type) {
+                'solo' => 52,
+                'duo' => 26,
+                default => 13,
+            };
+
             $room->update([
                 'category_id' => $request->integer('category_id'),
                 'title' => $request->string('title')->toString(),
@@ -144,6 +158,7 @@ class RoomController extends Controller
                 'total_prize' => $request->input('total_prize'),
                 'kill_prize_enabled' => $request->boolean('kill_prize_enabled'),
                 'kill_prize_per_kill' => $request->boolean('kill_prize_enabled') ? $request->input('kill_prize_per_kill') : 0,
+                'max_squads' => $maxSquads,
             ]);
 
             $this->syncRoomPrizes($room, $request->validated('prizes') ?? []);

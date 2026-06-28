@@ -37,6 +37,12 @@ class SquadController extends Controller
     {
         $room->load('category');
 
+        if ($room->isFull()) {
+            return redirect()
+                ->route('rooms.show', $room)
+                ->with('error', 'This room is full. No more slots available.');
+        }
+
         if ($response = $this->ensurePlayerCanJoin($room, false)) {
             return $response;
         }
@@ -49,6 +55,14 @@ class SquadController extends Controller
 
     public function store(SquadStoreRequest $request, Room $room): RedirectResponse
     {
+        $room->loadMissing('category');
+
+        if ($room->isFull()) {
+            return redirect()
+                ->route('rooms.show', $room)
+                ->with('error', 'This room is full. No more slots available.');
+        }
+
         if ($response = $this->ensurePlayerCanJoin($room)) {
             return $response;
         }
