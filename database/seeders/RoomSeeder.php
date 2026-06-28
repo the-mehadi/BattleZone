@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Room;
+use App\Models\Squad;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -28,8 +29,12 @@ class RoomSeeder extends Seeder
             ->with(['categoryPrizes' => fn ($query) => $query->orderBy('position')])
             ->get()
             ->keyBy('squad_type');
+        $players = User::query()
+            ->where('role', 'player')
+            ->orderBy('id')
+            ->get();
 
-        if ($categories->count() < 3) {
+        if ($categories->count() < 3 || $players->isEmpty()) {
             return;
         }
 
@@ -78,6 +83,102 @@ class RoomSeeder extends Seeder
                     ])
                     ->all()
             );
+        }
+
+        $sampleSquads = [
+            'Bermuda Squad Clash #1' => [
+                [
+                    'leader_phone' => '01710000001',
+                    'squad_name' => 'Blaze Wolves',
+                    'status' => 'approved',
+                    'players' => [
+                        ['ingame_name' => 'RafiGamer', 'ingame_id' => 'SG1001'],
+                        ['ingame_name' => 'StormNadim', 'ingame_id' => 'SG1002'],
+                        ['ingame_name' => 'RushHasan', 'ingame_id' => 'SG1003'],
+                        ['ingame_name' => 'SniperArif', 'ingame_id' => 'SG1004'],
+                    ],
+                ],
+                [
+                    'leader_phone' => '01710000004',
+                    'squad_name' => 'Alpha Drop',
+                    'status' => 'pending',
+                    'players' => [
+                        ['ingame_name' => 'SiamLeader', 'ingame_id' => 'SG1005'],
+                        ['ingame_name' => 'NightCobra', 'ingame_id' => 'SG1006'],
+                        ['ingame_name' => 'FireMamba', 'ingame_id' => 'SG1007'],
+                        ['ingame_name' => 'ZoneHunter', 'ingame_id' => 'SG1008'],
+                    ],
+                ],
+            ],
+            'Purgatory Duo Rush #1' => [
+                [
+                    'leader_phone' => '01710000002',
+                    'squad_name' => 'Duo Storm',
+                    'status' => 'approved',
+                    'players' => [
+                        ['ingame_name' => 'NadimFF', 'ingame_id' => 'DU2001'],
+                        ['ingame_name' => 'RafiWing', 'ingame_id' => 'DU2002'],
+                    ],
+                ],
+                [
+                    'leader_phone' => '01710000005',
+                    'squad_name' => 'Shadow Pair',
+                    'status' => 'pending',
+                    'players' => [
+                        ['ingame_name' => 'ArifSniper', 'ingame_id' => 'DU2003'],
+                        ['ingame_name' => 'SilentAce', 'ingame_id' => 'DU2004'],
+                    ],
+                ],
+            ],
+            'Kalahari Solo Night #1' => [
+                [
+                    'leader_phone' => '01710000003',
+                    'squad_name' => 'Solo Hasan',
+                    'status' => 'approved',
+                    'players' => [
+                        ['ingame_name' => 'HasanRush', 'ingame_id' => 'SO3001'],
+                    ],
+                ],
+                [
+                    'leader_phone' => '01710000001',
+                    'squad_name' => 'Solo Rafi',
+                    'status' => 'pending',
+                    'players' => [
+                        ['ingame_name' => 'RafiSolo', 'ingame_id' => 'SO3002'],
+                    ],
+                ],
+            ],
+        ];
+
+        foreach ($sampleSquads as $roomTitle => $squads) {
+            $room = Room::query()->where('title', $roomTitle)->first();
+
+            if (! $room) {
+                continue;
+            }
+
+            foreach ($squads as $squadData) {
+                $leader = $players->firstWhere('phone', $squadData['leader_phone']);
+
+                if (! $leader) {
+                    continue;
+                }
+
+                $squad = Squad::query()->updateOrCreate(
+                    [
+                        'room_id' => $room->id,
+                        'leader_user_id' => $leader->id,
+                    ],
+                    [
+                        'squad_name' => $squadData['squad_name'],
+                        'total_paid' => $room->entry_fee,
+                        'status' => $squadData['status'],
+                    ]
+                );
+
+                $squad->squadPlayers()->delete();
+                $squad->squadPlayers()->createMany($squadData['players']);
+            }
         }
     }
 }

@@ -33,15 +33,18 @@
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <p class="text-sm font-semibold uppercase tracking-[0.18em] text-orange-400">{{ $room->category->name }}</p>
-                            <h2 class="mt-2 text-2xl font-bold text-white">{{ $room->title }}</h2>
-                            <div class="mt-4">
-                                <x-slot-progress :room="$room" />
-                            </div>
-                        </div>
+                        </div>                        
 
                         <span class="{{ match ($room->status) { 'upcoming' => 'border-sky-500/30 bg-sky-500/10 text-sky-300', 'live' => 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300', default => 'border-violet-500/30 bg-violet-500/10 text-violet-300' } }} rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em]">
                             {{ $room->status }}
                         </span>
+                    </div>
+
+                    <div>
+                        <h2 class="mt-2 text-2xl font-bold text-white">{{ $room->title }}</h2>
+                        <div class="mt-4">
+                            <x-slot-progress :room="$room" />
+                        </div>
                     </div>
 
                     <div class="mt-5 rounded-2xl border border-slate-800 bg-slate-950/80 px-4 py-4">
