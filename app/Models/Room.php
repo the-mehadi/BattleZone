@@ -23,6 +23,8 @@ class Room extends Model
         'match_time',
         'entry_fee',
         'total_prize',
+        'kill_prize_enabled',
+        'kill_prize_per_kill',
         'is_room_locked',
         'status',
         'created_by',
@@ -34,6 +36,8 @@ class Room extends Model
             'match_time' => 'datetime',
             'entry_fee' => 'decimal:2',
             'total_prize' => 'decimal:2',
+            'kill_prize_enabled' => 'boolean',
+            'kill_prize_per_kill' => 'decimal:2',
             'is_room_locked' => 'boolean',
         ];
     }

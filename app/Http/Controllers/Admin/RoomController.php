@@ -76,6 +76,8 @@ class RoomController extends Controller
                 'match_time' => $request->date('match_time'),
                 'entry_fee' => $request->input('entry_fee'),
                 'total_prize' => $request->input('total_prize'),
+                'kill_prize_enabled' => $request->boolean('kill_prize_enabled'),
+                'kill_prize_per_kill' => $request->boolean('kill_prize_enabled') ? $request->input('kill_prize_per_kill') : 0,
                 'is_room_locked' => true,
                 'status' => 'upcoming',
                 'created_by' => $request->user()->id,
@@ -140,6 +142,8 @@ class RoomController extends Controller
                 'match_time' => $request->date('match_time'),
                 'entry_fee' => $request->input('entry_fee'),
                 'total_prize' => $request->input('total_prize'),
+                'kill_prize_enabled' => $request->boolean('kill_prize_enabled'),
+                'kill_prize_per_kill' => $request->boolean('kill_prize_enabled') ? $request->input('kill_prize_per_kill') : 0,
             ]);
 
             $this->syncRoomPrizes($room, $request->validated('prizes') ?? []);

@@ -31,6 +31,7 @@ class RoomRequest extends FormRequest
 
         $this->merge([
             'prizes' => $prizes,
+            'kill_prize_enabled' => $this->boolean('kill_prize_enabled'),
         ]);
     }
 
@@ -48,6 +49,8 @@ class RoomRequest extends FormRequest
             'match_time' => ['required', 'date', 'after:now'],
             'entry_fee' => ['required', 'numeric', 'min:0'],
             'total_prize' => ['required', 'numeric', 'min:0'],
+            'kill_prize_enabled' => ['boolean'],
+            'kill_prize_per_kill' => ['required_if:kill_prize_enabled,true', 'nullable', 'numeric', 'min:1'],
             'room_code' => ['nullable', 'string', 'max:20'],
             'room_password' => ['nullable', 'string', 'max:20'],
             'prizes' => ['nullable', 'array'],
