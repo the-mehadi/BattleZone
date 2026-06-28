@@ -13,8 +13,8 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="bg-slate-950 font-sans text-slate-100 antialiased">
-        <div class="min-h-screen lg:flex">
-            <aside class="w-full border-b border-slate-800 bg-slate-900 lg:min-h-screen lg:w-72 lg:border-b-0 lg:border-r">
+        <div class="min-h-screen lg:block">
+            <aside class="w-full border-b border-slate-800 bg-slate-900 lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:h-screen lg:w-72 lg:border-b-0 lg:border-r">
                 <div class="flex h-full flex-col">
                     <div class="border-b border-slate-800 px-6 py-6">
                         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
@@ -71,7 +71,7 @@
                 </div>
             </aside>
 
-            <div class="flex-1">
+            <div class="lg:pl-72">
                 <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
                     <div class="flex items-center justify-between px-6 py-5 lg:px-10">
                         <div>
