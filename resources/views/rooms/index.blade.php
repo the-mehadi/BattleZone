@@ -33,12 +33,18 @@
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <p class="text-sm font-semibold uppercase tracking-[0.18em] text-orange-400">{{ $room->category->name }}</p>
-                            <h2 class="mt-2 text-2xl font-bold text-white">{{ $room->title }}</h2>
-                        </div>
+                        </div>                        
 
                         <span class="{{ match ($room->status) { 'upcoming' => 'border-sky-500/30 bg-sky-500/10 text-sky-300', 'live' => 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300', default => 'border-violet-500/30 bg-violet-500/10 text-violet-300' } }} rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em]">
                             {{ $room->status }}
                         </span>
+                    </div>
+
+                    <div>
+                        <h2 class="mt-2 text-2xl font-bold text-white">{{ $room->title }}</h2>
+                        <div class="mt-4">
+                            <x-slot-progress :room="$room" />
+                        </div>
                     </div>
 
                     <div class="mt-5 rounded-2xl border border-slate-800 bg-slate-950/80 px-4 py-4">
@@ -65,9 +71,21 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('rooms.show', $room) }}" class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-orange-500 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-400">
-                        View Details
-                    </a>
+                    <div class="mt-6 grid gap-3">
+                        <a href="{{ route('rooms.show', $room) }}" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-700 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-slate-800 hover:text-white">
+                            View Details
+                        </a>
+
+                        @if ($room->isFull())
+                            <button type="button" disabled class="inline-flex w-full cursor-not-allowed items-center justify-center rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-3 text-sm font-bold text-red-300 opacity-90">
+                                Room Full
+                            </button>
+                        @else
+                            <a href="{{ route('rooms.join', $room) }}" class="inline-flex w-full items-center justify-center rounded-2xl bg-orange-500 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-400">
+                                Join Match
+                            </a>
+                        @endif
+                    </div>
                 </article>
             @empty
                 <div class="rounded-[2rem] border border-slate-800 bg-slate-900/75 px-6 py-12 text-center text-slate-300 md:col-span-2 xl:col-span-3">

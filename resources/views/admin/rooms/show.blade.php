@@ -34,6 +34,34 @@
                     </div>
                 </div>
 
+                <div class="mt-6 rounded-3xl border border-slate-800 bg-slate-950/60 p-5">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                        <div>
+                            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-orange-400">Slot Capacity</p>
+                            <h3 class="mt-2 text-2xl font-semibold text-white">{{ $room->joined_squads_count }} / {{ $room->max_squads }} Teams joined</h3>
+                        </div>
+
+                        <div class="grid gap-3 sm:grid-cols-3">
+                            <div class="rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3">
+                                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Pending</p>
+                                <p class="mt-2 text-lg font-bold text-white">{{ $room->squads->where('status', 'pending')->count() }}</p>
+                            </div>
+                            <div class="rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3">
+                                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Approved</p>
+                                <p class="mt-2 text-lg font-bold text-white">{{ $room->squads->where('status', 'approved')->count() }}</p>
+                            </div>
+                            <div class="rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3">
+                                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Rejected</p>
+                                <p class="mt-2 text-lg font-bold text-white">{{ $room->squads->where('status', 'rejected')->count() }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <x-slot-progress :room="$room" />
+                    </div>
+                </div>
+
                 <div class="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <div class="rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Map</p>

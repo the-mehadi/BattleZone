@@ -61,9 +61,11 @@ class ResultController extends Controller
         }
 
         $summary = [];
+        $positionPrizeTotal = 0;
+        $killPrizeTotal = 0;
 
         try {
-            DB::transaction(function () use ($request, $room, &$summary): void {
+            DB::transaction(function () use ($request, $room, &$summary, &$positionPrizeTotal, &$killPrizeTotal): void {
                 $room = Room::query()
                     ->lockForUpdate()
                     ->with([
@@ -94,7 +96,7 @@ class ResultController extends Controller
                     $totalPoint = round($killPoint + $rankPoint, 2);
                     $prizeWon = round((float) ($prize?->prize_amount ?? 0), 2);
 
-                    Result::create([
+                    $result = Result::create([
                         'room_id' => $room->id,
                         'squad_id' => $squad->id,
                         'position' => $position,
@@ -106,6 +108,8 @@ class ResultController extends Controller
                     ]);
 
                     if ($prizeWon > 0) {
+                        $positionPrizeTotal += $prizeWon;
+
                         $this->walletService->credit(
                             $squad->leader,
                             $prizeWon,
@@ -119,6 +123,22 @@ class ResultController extends Controller
                             $prizeWon,
                             $position
                         );
+                    }
+
+                    if ($room->kill_prize_enabled && (float) $room->kill_prize_per_kill > 0) {
+                        $killPrize = round($totalKills * (float) $room->kill_prize_per_kill, 2);
+
+                        if ($killPrize > 0) {
+                            $this->walletService->credit(
+                                $squad->leader,
+                                $killPrize,
+                                sprintf('Kill prize - %s - %d kills', $room->title, $totalKills),
+                                $room->id
+                            );
+
+                            $result->increment('prize_won', $killPrize);
+                            $killPrizeTotal += $killPrize;
+                        }
                     }
                 }
 
@@ -138,7 +158,12 @@ class ResultController extends Controller
 
         return redirect()
             ->route('admin.results.index', $room)
-            ->with('success', 'Results saved successfully. '.implode(' | ', $summary));
+            ->with('success', 'Results saved successfully. '.implode(' | ', $summary))
+            ->with('payoutSummary', [
+                'position_prizes' => round($positionPrizeTotal, 2),
+                'kill_prizes' => round($killPrizeTotal, 2),
+                'total_paid_out' => round($positionPrizeTotal + $killPrizeTotal, 2),
+            ]);
     }
 
     public function update(ResultStoreRequest $request, Room $room): RedirectResponse

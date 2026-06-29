@@ -45,6 +45,7 @@
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Title</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Category</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Match Time</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Slots</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Status</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Lock</th>
                             <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Actions</th>
@@ -59,6 +60,11 @@
                                 </td>
                                 <td class="px-6 py-5 text-sm text-slate-300">{{ $room->category->name }}</td>
                                 <td class="px-6 py-5 text-sm text-slate-300">{{ $room->match_time->format('d M Y, h:i A') }}</td>
+                                <td class="px-6 py-5">
+                                    <div class="min-w-[180px]">
+                                        <x-slot-progress :room="$room" />
+                                    </div>
+                                </td>
                                 <td class="px-6 py-5">
                                     <span class="{{ match ($room->status) { 'upcoming' => 'border-sky-500/30 bg-sky-500/10 text-sky-300', 'live' => 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300', 'finished' => 'border-violet-500/30 bg-violet-500/10 text-violet-300', default => 'border-rose-500/30 bg-rose-500/10 text-rose-300' } }} inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide">
                                         {{ $room->status }}
@@ -91,7 +97,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center">
+                                <td colspan="7" class="px-6 py-12 text-center">
                                     <p class="text-lg font-medium text-slate-200">No rooms found.</p>
                                     <p class="mt-2 text-sm text-slate-400">Create your first tournament room to start managing BattleZone matches.</p>
                                 </td>

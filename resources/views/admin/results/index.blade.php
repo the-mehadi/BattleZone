@@ -17,6 +17,34 @@
                     </div>
                 </div>
 
+                @if ($room->kill_prize_enabled)
+                    <div class="mt-6 rounded-3xl border border-orange-500/30 bg-orange-500/10 px-5 py-4">
+                        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-orange-300">Kill Prize Active</p>
+                        <p class="mt-2 text-base font-semibold text-white">⚡ Kill Prize Active - {{ number_format((float) $room->kill_prize_per_kill, 2) }} BDT per kill</p>
+                        <p class="mt-1 text-sm text-orange-100">Every approved squad earns additional cash based on submitted kills.</p>
+                    </div>
+                @endif
+
+                @if (session('payoutSummary'))
+                    <div class="mt-6 rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-5">
+                        <h3 class="text-lg font-semibold text-emerald-200">Payout Summary</h3>
+                        <div class="mt-4 grid gap-3 md:grid-cols-3">
+                            <div class="rounded-2xl border border-emerald-500/20 bg-slate-950/40 px-4 py-4">
+                                <p class="text-xs uppercase tracking-[0.18em] text-emerald-300">Position Prizes</p>
+                                <p class="mt-2 text-xl font-semibold text-white">৳ {{ number_format((float) session('payoutSummary.position_prizes'), 2) }}</p>
+                            </div>
+                            <div class="rounded-2xl border border-emerald-500/20 bg-slate-950/40 px-4 py-4">
+                                <p class="text-xs uppercase tracking-[0.18em] text-emerald-300">Kill Prizes</p>
+                                <p class="mt-2 text-xl font-semibold text-white">৳ {{ number_format((float) session('payoutSummary.kill_prizes'), 2) }}</p>
+                            </div>
+                            <div class="rounded-2xl border border-emerald-500/20 bg-slate-950/40 px-4 py-4">
+                                <p class="text-xs uppercase tracking-[0.18em] text-emerald-300">Total Paid Out</p>
+                                <p class="mt-2 text-xl font-semibold text-white">৳ {{ number_format((float) session('payoutSummary.total_paid_out'), 2) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 @if ($hasResults)
                     <div class="mt-8 rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-5">
                         <h3 class="text-lg font-semibold text-emerald-200">Results Already Entered</h3>
@@ -160,6 +188,9 @@
                         <p>Rank point basis: <span class="font-semibold text-white">room prize amount for the submitted position</span></p>
                         <p>Total point formula: <span class="font-semibold text-white">kill_point + rank_point</span></p>
                         <p>Prize payout target: <span class="font-semibold text-white">squad leader wallet</span></p>
+                        @if ($room->kill_prize_enabled)
+                            <p>Kill prize payout: <span class="font-semibold text-white">{{ number_format((float) $room->kill_prize_per_kill, 2) }} BDT per kill</span></p>
+                        @endif
                     </div>
                 </div>
 
