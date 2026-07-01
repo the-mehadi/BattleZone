@@ -80,6 +80,10 @@
                         <div class="mt-5 rounded-2xl border border-orange-500/20 bg-orange-500/10 px-5 py-4 text-sm font-semibold text-orange-200">
                             Room ID will be revealed before match.
                         </div>
+                    @elseif (! auth()->check() || ! $hasJoined)
+                        <div class="mt-5 rounded-2xl border border-slate-800 bg-slate-900/80 px-5 py-4 text-sm font-semibold text-slate-300">
+                            Join this room first to see the room code and password.
+                        </div>
                     @else
                         <div class="mt-5 grid gap-4 md:grid-cols-2">
                             <div x-data="{ copied: false }" class="rounded-2xl border border-slate-800 bg-slate-900 px-5 py-4">
