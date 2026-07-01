@@ -124,21 +124,54 @@
                     @endif
                 </div>
 
-                <div class="mt-8 flex flex-wrap gap-4">
+                @php
+                    $isLive = $room->status === 'live';
+                    $isFinished = $room->status === 'finished';
+                @endphp
+
+                <div class="mt-8 flex flex-wrap items-start gap-4">
                     @if ($room->isFull())
                         <div class="w-full rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm font-semibold text-red-200">
                             This room is full. No more slots are available.
                         </div>
                     @endif
 
+                    @if ($isLive)
+                        <div class="inline-flex items-center gap-3 rounded-full border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm font-black uppercase tracking-[0.24em] text-red-200 shadow-[0_0_25px_rgba(239,68,68,0.28)] animate-live-alert">
+                            <span class="relative flex h-3 w-3">
+                                <span class="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-80 animate-ping"></span>
+                                <span class="relative inline-flex h-3 w-3 rounded-full bg-red-500"></span>
+                            </span>
+                            <span class="relative flex h-5 w-5 items-center justify-center">
+                                <span class="absolute h-5 w-5 rounded-full border border-red-400/70 animate-ping"></span>
+                                <span class="h-2.5 w-2.5 rounded-full bg-red-300"></span>
+                            </span>
+                            <span>🔴 LIVE</span>
+                        </div>
+                    @endif
+
                     @guest
-                        <a href="{{ route('login') }}" class="rounded-2xl bg-orange-500 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-400">
-                            Login To Join
-                        </a>
+                        @if ($isFinished)
+                            <button type="button" disabled class="cursor-not-allowed rounded-2xl bg-slate-700 px-6 py-3 text-sm font-bold text-slate-200 opacity-90">
+                                Match Finished
+                            </button>
+                        @elseif ($room->isFull())
+                            <button type="button" disabled class="cursor-not-allowed rounded-2xl bg-red-500 px-6 py-3 text-sm font-bold text-slate-950 opacity-90">
+                                Room Full
+                            </button>
+                        @else
+                            <a href="{{ route('login') }}" class="@if($isLive) animate-live-button shadow-[0_0_0_1px_rgba(248,113,113,0.35),0_0_32px_rgba(239,68,68,0.38)] hover:shadow-[0_0_0_1px_rgba(251,146,60,0.4),0_0_38px_rgba(249,115,22,0.42)] @endif rounded-2xl bg-orange-500 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-400">
+                                Login To Join
+                            </a>
+                        @endif
                     @endguest
 
                     @auth
-                        @if ($hasJoined)
+                        @if ($isFinished)
+                            <button type="button" disabled class="cursor-not-allowed rounded-2xl bg-slate-700 px-6 py-3 text-sm font-bold text-slate-200 opacity-90">
+                                Match Finished
+                            </button>
+                        @elseif ($hasJoined)
                             <button type="button" disabled class="cursor-not-allowed rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-bold text-slate-950 opacity-90">
                                 Already Joined
                             </button>
@@ -146,8 +179,8 @@
                             <button type="button" disabled class="cursor-not-allowed rounded-2xl bg-red-500 px-6 py-3 text-sm font-bold text-slate-950 opacity-90">
                                 Room Full
                             </button>
-                        @else
-                            <a href="{{ route('rooms.join', $room) }}" class="rounded-2xl bg-orange-500 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-400">
+                        @elseif (!$isLive)
+                            <a href="{{ route('rooms.join', $room) }}" class="@if($isLive) animate-live-button shadow-[0_0_0_1px_rgba(248,113,113,0.35),0_0_32px_rgba(239,68,68,0.38)] hover:shadow-[0_0_0_1px_rgba(251,146,60,0.4),0_0_38px_rgba(249,115,22,0.42)] @endif rounded-2xl bg-orange-500 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-400">
                                 Join This Room
                             </a>
                         @endif
