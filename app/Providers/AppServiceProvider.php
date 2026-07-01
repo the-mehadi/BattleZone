@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Providers;
-
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // ngrok service
+        if (str_contains(request()->getHost(), 'ngrok') || request()->header('x-forwarded-proto') === 'https') {
+            URL::forceScheme('https');
+        }
+     
     }
 }
