@@ -3,6 +3,7 @@
         ->map(fn ($category) => [
             'id' => $category->id,
             'name' => $category->name,
+            'squad_type' => $category->squad_type,
             'map' => $category->map,
             'entry_fee' => (float) $category->entry_fee,
             'prizes' => $category->categoryPrizes
@@ -31,10 +32,13 @@
 <x-admin-layout title="Create Room">
     <div class="mx-auto max-w-6xl">
         <div class="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl shadow-slate-950/30 md:p-8">
+            
+            <!-- create tournament room -->
             <div class="mb-8">
                 <h2 class="text-2xl font-semibold text-white">Create Tournament Room</h2>
                 <p class="mt-2 text-sm text-slate-400">Select an active category, schedule the match, and prepare the room rewards.</p>
-            </div>
+            </div>  
+
 
             <form method="POST" action="{{ route('admin.rooms.store') }}">
                 @csrf
@@ -44,7 +48,9 @@
                         categories: @js($categoryOptions),
                         selectedCategoryId: @js($selectedCategoryId),
                         form: {
+                            title: @js(old('title', $room->title)),
                             map: @js(old('map', $room->map)),
+                            match_time: @js(old('match_time', optional($room->match_time)->format('Y-m-d\\TH:i'))),
                             entry_fee: @js((float) old('entry_fee', $room->entry_fee ?? 0)),
                             total_prize: @js((float) old('total_prize', $room->total_prize ?? 0)),
                         },
@@ -111,14 +117,59 @@
                             if (!this.killPrizeEnabled) {
                                 this.killPrizePerKill = 0;
                             }
+                        },
+                        nextTwoHoursDateTimeLocal() {
+                            const now = new Date();
+                            now.setHours(now.getHours() + 2);
+
+                            const year = now.getFullYear();
+                            const month = String(now.getMonth() + 1).padStart(2, '0');
+                            const day = String(now.getDate()).padStart(2, '0');
+                            const hours = String(now.getHours()).padStart(2, '0');
+                            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+                            return `${year}-${month}-${day}T${hours}:${minutes}`;
+                        },
+                        applyQuickPreset() {
+                            const squadCategory = this.categories.find((category) => category.squad_type === 'squad');
+
+                            if (squadCategory) {
+                                this.selectedCategoryId = String(squadCategory.id);
+                            }
+
+                            this.form.title = 'Bermuda Squad Challenge';
+                            this.form.map = 'Bermuda';
+                            this.form.match_time = this.nextTwoHoursDateTimeLocal();
+                            this.form.entry_fee = 20;
+                            this.form.total_prize = 150;
+                            this.prizes = [
+                                { position: 1, prize_amount: 100 },
+                                { position: 2, prize_amount: 50 },
+                                { position: 3, prize_amount: 40 },
+                            ];
+                            this.killPrizeEnabled = true;
+                            this.killPrizePerKill = 10;
                         }
                     }"
                     class="space-y-8"
                 >
+                    <div class="flex justify-end">
+                        <button
+                            type="button"
+                            @click="applyQuickPreset()"
+                            class="inline-flex items-center gap-3 rounded-2xl border border-orange-400/30 bg-gradient-to-r from-orange-500 to-red-500 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-orange-500/20 transition hover:from-orange-400 hover:to-red-400"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M11.25 4.5a.75.75 0 0 1 1.5 0v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5Z" />
+                            </svg>
+                            <span>Quick Fill Squad Preset</span>
+                        </button>
+                    </div>
+
                     <div class="grid gap-6 lg:grid-cols-2">
                         <div class="space-y-2">
                             <x-input-label for="title" :value="__('Room Title')" />
-                            <x-text-input id="title" name="title" type="text" class="block w-full border-slate-700 bg-slate-900 text-slate-100" :value="old('title', $room->title)" required />
+                            <input id="title" name="title" type="text" x-model="form.title" class="block w-full rounded-xl border-slate-700 bg-slate-900 text-slate-100 focus:border-orange-500 focus:ring-orange-500" required>
                             <x-input-error :messages="$errors->get('title')" class="mt-2" />
                         </div>
 
@@ -148,7 +199,7 @@
 
                         <div class="space-y-2">
                             <x-input-label for="match_time" :value="__('Match Time')" />
-                            <x-text-input id="match_time" name="match_time" type="datetime-local" class="block w-full border-slate-700 bg-slate-900 text-slate-100" :value="old('match_time', optional($room->match_time)->format('Y-m-d\\TH:i'))" required />
+                            <input id="match_time" name="match_time" type="datetime-local" x-model="form.match_time" class="block w-full rounded-xl border-slate-700 bg-slate-900 text-slate-100 focus:border-orange-500 focus:ring-orange-500" required>
                             <x-input-error :messages="$errors->get('match_time')" class="mt-2" />
                         </div>
 
